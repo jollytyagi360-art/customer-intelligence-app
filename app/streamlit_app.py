@@ -2,11 +2,13 @@ import streamlit as st
 import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 
 # ---------------------------
-# Load model
+# Load model (works everywhere)
 # ---------------------------
-model = pickle.load(open("model.pkl", "rb"))
+model_path = os.path.join(os.path.dirname(__file__), "model.pkl")
+model = pickle.load(open(model_path, "rb"))
 
 # ---------------------------
 # Page config
@@ -48,26 +50,20 @@ if st.button("Predict"):
 
     prediction = model.predict(input_data)
 
-    # ---------------------------
     # Output
-    # ---------------------------
     if prediction[0] == 1:
         st.error("⚠️ High Risk: Customer likely to churn")
     else:
         st.success("✅ Customer is active")
 
-    # ---------------------------
     # Probability
-    # ---------------------------
     try:
         prob = model.predict_proba(input_data)[0][1]
         st.write(f"Churn Probability: {round(prob * 100, 2)}%")
     except:
-        st.write("Probability not available for this model")
+        st.write("Probability not available")
 
-    # ---------------------------
     # Visualization
-    # ---------------------------
     fig, ax = plt.subplots()
     ax.bar(['Recency', 'Frequency', 'Monetary'], [recency, frequency, monetary])
     ax.set_title("Customer Input Overview")
