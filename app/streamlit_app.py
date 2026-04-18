@@ -1,28 +1,29 @@
 import streamlit as st
 import pickle
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # ---------------------------
-# Load model (FIXED PATH)
+# Load model
 # ---------------------------
 model = pickle.load(open("model.pkl", "rb"))
 
 # ---------------------------
-# Page Config
+# Page config
 # ---------------------------
-st.set_page_config(
-    page_title="Customer Intelligence App",
-    layout="centered"
-)
+st.set_page_config(page_title="Customer Intelligence App", layout="centered")
 
 # ---------------------------
 # Title
 # ---------------------------
-st.title("📊 Customer Churn Prediction System")
+st.markdown(
+    "<h1 style='text-align: center; color: #4CAF50;'>Customer Intelligence Dashboard</h1>",
+    unsafe_allow_html=True
+)
 st.markdown("Enter customer details to predict churn probability")
 
 # ---------------------------
-# Input Layout
+# Input layout
 # ---------------------------
 col1, col2, col3 = st.columns(3)
 
@@ -36,7 +37,7 @@ with col3:
     monetary = st.number_input("Monetary Value", min_value=0.0)
 
 # ---------------------------
-# Predict Button
+# Predict button
 # ---------------------------
 if st.button("Predict"):
 
@@ -54,3 +55,20 @@ if st.button("Predict"):
         st.error("⚠️ High Risk: Customer likely to churn")
     else:
         st.success("✅ Customer is active")
+
+    # ---------------------------
+    # Probability
+    # ---------------------------
+    try:
+        prob = model.predict_proba(input_data)[0][1]
+        st.write(f"Churn Probability: {round(prob * 100, 2)}%")
+    except:
+        st.write("Probability not available for this model")
+
+    # ---------------------------
+    # Visualization
+    # ---------------------------
+    fig, ax = plt.subplots()
+    ax.bar(['Recency', 'Frequency', 'Monetary'], [recency, frequency, monetary])
+    ax.set_title("Customer Input Overview")
+    st.pyplot(fig)
